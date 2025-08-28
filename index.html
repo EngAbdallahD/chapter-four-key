@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Induction Motor: An Interactive Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals with Blue Accent -->
+    <!-- Application Structure Plan: A thematic, non-linear dashboard structure was chosen over a direct report-to-page conversion. This design prioritizes user exploration and understanding by grouping related concepts into interactive modules (e.g., 'How It Works', 'Performance Explorer'). Navigation allows users to jump to topics of interest, while interactive elements like sliders and toggles make abstract concepts tangible. This approach is better for usability as it transforms passive reading into an active learning experience, making the dense technical information more digestible and engaging. -->
+    <!-- Visualization & Content Choices: 1. Rotating Magnetic Field: Report Info -> RMF Generation -> Goal: Inform -> Viz: CSS Animated Diagram -> Interaction: Passive animation -> Justification: More intuitive than text for a dynamic concept. Method: HTML/CSS. 2. Motor Comparisons: Report Info -> Tables 1 & 2 -> Goal: Compare -> Viz: Interactive Cards -> Interaction: JS-powered buttons to toggle content -> Justification: More engaging and focused than static tables. Method: HTML/JS. 3. Performance Curves: Report Info -> Speed-Torque/Efficiency/PF relationships -> Goal: Show Change/Relationships -> Viz: Line and Bar Charts -> Interaction: A single slider controls load, updating both charts in real-time -> Justification: Creates a powerful, direct visualization of the motor's dynamic behavior under load. Library: Chart.js. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #1e293b; /* slate-800 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 640px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .rmf-pole {
+            animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        .rmf-arrow {
+            transform-origin: center;
+            animation: rotate 6s linear infinite;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-slate-900">Induction Motor Explorer</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#principles" class="text-gray-600 hover:bg-slate-200 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">Principles</a>
+                        <a href="#anatomy" class="text-gray-600 hover:bg-slate-200 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">Anatomy</a>
+                        <a href="#types" class="text-gray-600 hover:bg-slate-200 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">Types</a>
+                        <a href="#performance" class="text-gray-600 hover:bg-slate-200 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">Performance</a>
+                        <a href="#applications" class="text-gray-600 hover:bg-slate-200 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">Applications</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <section id="hero" class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">The Asynchronous Workhorse</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600">
+                Explore the fundamental principles, construction, and performance of the induction motor—the most widely used electric motor in the world. This interactive guide translates complex engineering concepts into dynamic visualizations.
+            </p>
+        </section>
+
+        <section id="principles" class="mb-16 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2 text-slate-900">Foundational Principles</h3>
+            <p class="text-center text-slate-600 mb-12 max-w-2xl mx-auto">The motor's operation relies on two core concepts: a rotating magnetic field created by the stator and the principle of 'slip' which allows the rotor to generate torque.</p>
+            
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h4 class="text-xl font-semibold mb-3 text-slate-800">The Rotating Magnetic Field (RMF)</h4>
+                    <p class="text-slate-600 mb-4">In a three-phase motor, windings are physically offset by 120°. When supplied with three-phase AC power, the resulting magnetic fields combine to create a single field of constant magnitude that rotates at a synchronous speed. This visualization demonstrates the concept.</p>
+                    <div class="w-full aspect-square bg-slate-100 rounded-lg flex items-center justify-center p-4">
+                        <div class="relative w-48 h-48 md:w-56 md:h-56">
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-blue-500 rounded-full rmf-pole" style="animation-delay: 0s;"></div>
+                            <div class="absolute bottom-1/4 left-[13%] translate-y-1/2 -translate-x-1/2 w-10 h-10 bg-green-500 rounded-full rmf-pole" style="animation-delay: 0.66s;"></div>
+                            <div class="absolute bottom-1/4 right-[13%] translate-y-1/2 translate-x-1/2 w-10 h-10 bg-red-500 rounded-full rmf-pole" style="animation-delay: 1.33s;"></div>
+                            <div class="absolute inset-0 flex items-center justify-center rmf-arrow">
+                                <div class="w-2 h-1/2 bg-slate-700 rounded-full relative">
+                                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-12 border-b-slate-700"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h4 class="text-xl font-semibold mb-3 text-slate-800">The Concept of Slip</h4>
+                    <p class="text-slate-600 mb-4">For torque to be produced, the rotor must turn slower than the RMF. This speed difference is called 'slip'. Slip is essential because it causes the RMF to "cut" across the rotor's conductive bars, inducing a current and creating the rotor's own magnetic field. The interaction between the stator's and rotor's fields generates torque.</p>
+                    <div class="bg-slate-100 p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-2 font-mono text-sm">
+                            <span>RMF Speed (Ns)</span>
+                            <span>1800 RPM</span>
+                        </div>
+                        <div class="w-full bg-slate-300 h-4 rounded-full">
+                            <div class="bg-blue-600 h-4 rounded-full" style="width: 100%;"></div>
+                        </div>
+                        <div class="flex justify-between items-center mt-4 mb-2 font-mono text-sm">
+                            <span>Rotor Speed (Nr)</span>
+                            <span id="rotor-speed-display">1755 RPM</span>
+                        </div>
+                        <div class="w-full bg-slate-300 h-4 rounded-full">
+                            <div id="rotor-speed-bar" class="bg-green-600 h-4 rounded-full" style="width: 97.5%;"></div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <p class="font-semibold text-slate-800">Slip: <span id="slip-display" class="text-red-600 font-bold">2.5%</span></p>
+                            <p class="text-xs text-slate-500">Slip increases as mechanical load on the motor increases.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="anatomy" class="mb-16 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2 text-slate-900">Motor Anatomy</h3>
+             <p class="text-center text-slate-600 mb-12 max-w-2xl mx-auto">An induction motor consists of a stationary stator and a rotating rotor. The rotor's design is the key difference between the two main types of three-phase motors. Click the buttons to compare them.</p>
+            <div class="text-center mb-8">
+                <button id="btn-squirrel" class="bg-blue-600 text-white px-5 py-2 rounded-md font-semibold shadow-md hover:bg-blue-700 transition-colors">Squirrel Cage Rotor</button>
+                <button id="btn-wound" class="bg-white text-slate-700 px-5 py-2 rounded-md font-semibold shadow-md hover:bg-slate-100 transition-colors">Wound Rotor (Slip-Ring)</button>
+            </div>
+            <div id="anatomy-content" class="bg-white p-6 md:p-8 rounded-xl shadow-lg transition-opacity duration-500">
+            </div>
+        </section>
+        
+        <section id="types" class="mb-16 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2 text-slate-900">Motor Classifications</h3>
+            <p class="text-center text-slate-600 mb-12 max-w-2xl mx-auto">Motors are classified by their power supply. Three-phase motors are the industrial standard, while single-phase motors power our homes and light commercial spaces. The choice is dictated by available electrical infrastructure.</p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500">
+                    <h4 class="text-xl font-semibold mb-3 text-slate-800">Single-Phase Motors</h4>
+                    <ul class="space-y-3 text-slate-600">
+                        <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">&#10003;</span><span>Operates on single-phase AC (2 wires), common in residential settings.</span></li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">&#10003;</span><span>Not self-starting; requires an auxiliary mechanism like a capacitor to create a rotating field.</span></li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">&#10003;</span><span>Lower efficiency, lower starting torque, and generally used for lower-power applications.</span></li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">&#10003;</span><span>Powers fans, refrigerators, pumps, and tools.</span></li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-green-500">
+                    <h4 class="text-xl font-semibold mb-3 text-slate-800">Three-Phase Motors</h4>
+                    <ul class="space-y-3 text-slate-600">
+                        <li class="flex items-start"><span class="text-green-500 mr-3 mt-1">&#10003;</span><span>Operates on three-phase AC (3 or 4 wires), the standard for industry.</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-3 mt-1">&#10003;</span><span>Inherently self-starting due to the smooth rotating magnetic field produced by the supply.</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-3 mt-1">&#10003;</span><span>Higher efficiency, high starting torque, and more compact for the same power rating.</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-3 mt-1">&#10003;</span><span>Drives heavy machinery like conveyors, lathes, large pumps, and crushers.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="performance" class="mb-16 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2 text-slate-900">Performance Explorer</h3>
+            <p class="text-center text-slate-600 mb-12 max-w-2xl mx-auto">A motor's performance is a dynamic relationship between speed, torque, efficiency, and power factor, all of which are heavily influenced by the mechanical load. Use the slider below to simulate changing the motor's load and observe how its key characteristics respond in real-time.</p>
+            
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                <div class="mb-6">
+                    <label for="load-slider" class="block text-center font-medium text-slate-700 mb-2">Mechanical Load: <span id="load-value" class="font-bold text-blue-600">75%</span> of Full Load</label>
+                    <input id="load-slider" type="range" min="5" max="110" value="75" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <div class="grid lg:grid-cols-5 gap-8">
+                    <div class="lg:col-span-3">
+                        <h4 class="text-lg font-semibold text-center mb-2 text-slate-800">Speed-Torque Curve</h4>
+                        <div class="chart-container">
+                            <canvas id="speedTorqueChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <h4 class="text-lg font-semibold text-center mb-2 text-slate-800">Efficiency & Power Factor</h4>
+                        <div class="chart-container">
+                            <canvas id="efficiencyPowerFactorChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="applications" class="scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center mb-2 text-slate-900">Applications & Modern Relevance</h3>
+            <p class="text-center text-slate-600 mb-12 max-w-2xl mx-auto">From household appliances to heavy industry and even electric vehicles, the induction motor is ubiquitous. Its historical limitations have been overcome by modern electronics like Variable Frequency Drives (VFDs), ensuring its place in a sustainable future.</p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-center">
+                <div class="bg-white p-4 rounded-lg shadow-md"><span class="text-2xl">🏠</span><p class="text-sm mt-2 font-medium">Residential</p></div>
+                <div class="bg-white p-4 rounded-lg shadow-md"><span class="text-2xl">🏢</span><p class="text-sm mt-2 font-medium">Commercial</p></div>
+                <div class="bg-white p-4 rounded-lg shadow-md"><span class="text-2xl">🏭</span><p class="text-sm mt-2 font-medium">Industrial</p></div>
+                <div class="bg-white p-4 rounded-lg shadow-md"><span class="text-2xl">🚜</span><p class="text-sm mt-2 font-medium">Agricultural</p></div>
+                <div class="bg-white p-4 rounded-lg shadow-md"><span class="text-2xl">🚆</span><p class="text-sm mt-2 font-medium">Transportation</p></div>
+                <div class="bg-white p-4 rounded-lg shadow-md"><span class="text-2xl">⚡️</span><p class="text-sm mt-2 font-medium">Renewable Energy</p></div>
+                <div class="bg-white p-4 rounded-lg shadow-md"><span class="text-2xl">⚕️</span><p class="text-sm mt-2 font-medium">Healthcare</p></div>
+                <div class="bg-white p-4 rounded-lg shadow-md"><span class="text-2xl">🚗</span><p class="text-sm mt-2 font-medium">Electric Vehicles</p></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 mt-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center text-sm">
+            <p>Interactive Induction Motor Report | Designed to make complex topics accessible.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const anatomyData = {
+                squirrel: {
+                    title: 'Squirrel Cage Rotor',
+                    description: 'The most common, simple, and rugged rotor design. It consists of conductive bars short-circuited by end rings, resembling a squirrel\'s cage. Its brushless, self-contained construction is renowned for low cost, high efficiency, and virtually no maintenance.',
+                    attributes: [
+                        { label: 'Construction', value: 'Simple, robust bars' },
+                        { label: 'Cost', value: 'Low' },
+                        { label: 'Maintenance', value: 'Very Low' },
+                        { label: 'Starting Torque', value: 'Lower (fixed)' },
+                        { label: 'Applications', value: 'Pumps, fans, conveyors' }
+                    ]
+                },
+                wound: {
+                    title: 'Wound Rotor (Slip-Ring)',
+                    description: 'A more complex design with insulated windings connected to external circuits via slip rings and brushes. This allows for the insertion of external resistance to control starting torque and speed, but at a higher cost and maintenance requirement.',
+                    attributes: [
+                        { label: 'Construction', value: 'Complex windings & brushes' },
+                        { label: 'Cost', value: 'High' },
+                        { label: 'Maintenance', value: 'Higher (brushes wear)' },
+                        { label: 'Starting Torque', value: 'High & Adjustable' },
+                        { label: 'Applications', value: 'Cranes, hoists, mills' }
+                    ]
+                }
+            };
+
+            const anatomyContent = document.getElementById('anatomy-content');
+            const btnSquirrel = document.getElementById('btn-squirrel');
+            const btnWound = document.getElementById('btn-wound');
+
+            function updateAnatomyContent(type) {
+                const data = anatomyData[type];
+                let attributesHtml = data.attributes.map(attr => `
+                    <div class="text-center">
+                        <p class="text-sm text-slate-500">${attr.label}</p>
+                        <p class="font-semibold text-slate-800">${attr.value}</p>
+                    </div>
+                `).join('');
+
+                anatomyContent.innerHTML = `
+                    <h4 class="text-2xl font-bold text-center mb-4 text-slate-900">${data.title}</h4>
+                    <p class="text-center text-slate-600 max-w-2xl mx-auto mb-8">${data.description}</p>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        ${attributesHtml}
+                    </div>
+                `;
+                
+                if (type === 'squirrel') {
+                    btnSquirrel.classList.add('bg-blue-600', 'text-white');
+                    btnSquirrel.classList.remove('bg-white', 'text-slate-700');
+                    btnWound.classList.add('bg-white', 'text-slate-700');
+                    btnWound.classList.remove('bg-blue-600', 'text-white');
+                } else {
+                    btnWound.classList.add('bg-blue-600', 'text-white');
+                    btnWound.classList.remove('bg-white', 'text-slate-700');
+                    btnSquirrel.classList.add('bg-white', 'text-slate-700');
+                    btnSquirrel.classList.remove('bg-blue-600', 'text-white');
+                }
+            }
+
+            btnSquirrel.addEventListener('click', () => updateAnatomyContent('squirrel'));
+            btnWound.addEventListener('click', () => updateAnatomyContent('wound'));
+            updateAnatomyContent('squirrel');
+
+            const loadSlider = document.getElementById('load-slider');
+            const loadValue = document.getElementById('load-value');
+            
+            const speedTorqueCtx = document.getElementById('speedTorqueChart').getContext('2d');
+            const efficiencyPowerFactorCtx = document.getElementById('efficiencyPowerFactorChart').getContext('2d');
+
+            const speedPoints = Array.from({ length: 21 }, (_, i) => 1800 * (1 - i * 0.05));
+            const torquePoints = [150, 165, 180, 200, 225, 250, 270, 290, 300, 280, 250, 220, 190, 160, 130, 100, 70, 40, 10, 0, 0];
+            const fullLoadTorque = 100;
+            const breakdownTorque = 300;
+            
+            const speedTorqueChart = new Chart(speedTorqueCtx, {
+                type: 'line',
+                data: {
+                    labels: speedPoints.map(s => Math.round(s)),
+                    datasets: [{
+                        label: 'Motor Torque',
+                        data: torquePoints,
+                        borderColor: 'rgb(37, 99, 235)',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }, {
+                        label: 'Operating Point',
+                        data: [],
+                        borderColor: 'rgb(220, 38, 38)',
+                        backgroundColor: 'rgb(220, 38, 38)',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        type: 'scatter'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Speed (RPM)' },
+                            reverse: true
+                        },
+                        y: {
+                            title: { display: true, text: 'Torque (% of Full Load)' },
+                            beginAtZero: true,
+                            max: 350
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    if (context[0].datasetIndex === 1) return 'Operating Point';
+                                    return `Speed: ${context[0].label} RPM`;
+                                }
+                            }
+                        },
+                        legend: { display: false }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    }
+                }
+            });
+
+            const efficiencyPowerFactorChart = new Chart(efficiencyPowerFactorCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Efficiency', 'Power Factor'],
+                    datasets: [{
+                        label: 'Performance',
+                        data: [0, 0],
+                        backgroundColor: [
+                            'rgba(22, 163, 74, 0.7)',
+                            'rgba(234, 179, 8, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(22, 163, 74)',
+                            'rgb(234, 179, 8)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 1.0,
+                            ticks: {
+                                callback: function(value) {
+                                    return (value * 100).toFixed(0) + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return (context.raw * 100).toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            function calculatePerformance(load) {
+                const slip = Math.max(0.005, 0.1 * (load / 100)); 
+                const speed = 1800 * (1 - slip);
+                
+                let torque;
+                if (speed > 1700) {
+                    torque = load;
+                } else {
+                    const speedRatio = speed / 1800;
+                    torque = breakdownTorque * (2 * slip) / (slip * slip + 0.1 * 0.1);
+                }
+                
+                const efficiency = 0.9 * (1 - Math.exp(-load / 40)) * (1 - 0.2 * Math.exp(-load / 100));
+                const powerFactor = 0.9 * (1 - 0.8 * Math.exp(-load / 30));
+
+                return { speed, torque, efficiency, powerFactor, slip };
+            }
+
+            function updateCharts(load) {
+                loadValue.textContent = `${load}%`;
+                const perf = calculatePerformance(load);
+
+                const operatingPoint = [{ x: perf.speed, y: perf.torque }];
+                speedTorqueChart.data.datasets[1].data = operatingPoint;
+                speedTorqueChart.update();
+
+                efficiencyPowerFactorChart.data.datasets[0].data = [perf.efficiency, perf.powerFactor];
+                efficiencyPowerFactorChart.update();
+                
+                const slipPercent = (perf.slip * 100).toFixed(1);
+                document.getElementById('slip-display').textContent = `${slipPercent}%`;
+                document.getElementById('rotor-speed-display').textContent = `${Math.round(perf.speed)} RPM`;
+                document.getElementById('rotor-speed-bar').style.width = `${100 - slipPercent}%`;
+            }
+
+            loadSlider.addEventListener('input', (event) => {
+                updateCharts(parseInt(event.target.value));
+            });
+
+            updateCharts(75);
+        });
+    </script>
+</body>
+</html>
